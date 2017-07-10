@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Local Weather</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="newcss.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+
+        <div class="container-fluid text-center">
+
+            <h1 id="data">
+                Local Weather       
+            </h1>
+
+            <div>
+                <h3 id="location"></h3>
+                <span><img id="conditionIcon"> </span>
+
+            </div>
+
+            <div class="things">                 
+
+                <div class="btn btn-default" id="temperature">
+                    <span id="tempCelsius" ></span>
+                    <span><i class="fa fa-thermometer-half" aria-hidden="true"></i></span>
+                </div>                           
+                <div class="btn btn-default" id="condition">
+                    <span id="conditionText">Condition: </span>
+                    <!-- <span><img id="conditionIcon"> </span> -->
+                </div>
+                <div class="btn btn-default" id="wind">
+                    <span id="windMph" ></span>
+                    <span><i class="fa fa-cloud" aria-hidden="true"></i></span>
+                </div>                
+                <div class="btn btn-default">
+                    <span id="humidity" ></span>
+                    <span><i class="fa fa-tint" aria-hidden="true"></i></span>
+                </div>
+                <div class="btn btn-default">
+                    <span id="feelsLikeC" ></span>
+                    <span><i class="fa fa-thermometer-full" aria-hidden="true"></i></span>
+                </div>
+
+            </div>
+
+            <div class="text-center">
+                <p>Coded by <a href="https://www.freecodecamp.com/kenyaguzmanp" target="_blank" >Kenya Guzmán</a></p>
+            </div> 
+        </div>
+
+
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>    
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+        <!--WEATHER SCRIPT -->
+        <script>
+            $(document).ready(function () {
+                var long;
+                var lat;
+                var apiKey="1e6f00d8a6434a0ea4b220356170305";
+                //geolocation
+                 if (navigator.geolocation) {
+                     navigator.geolocation.getCurrentPosition(function (position) {
+                         long = position.coords.longitude;
+                        lat = position.coords.latitude;
+                //         //$("#data").html("latitude: " + long + "<br>longitude: " + lat);
+                //console.log(lat);
+                     });
+                 }
+                
+                //var api = "http://api.apixu.com/v1/current.json?key=1e6f00d8a6434a0ea4b220356170305&q=-34.597910, -58.411536";
+                 var api = "http://api.apixu.com/v1/current.json?key="+apiKey+"&q=-34.597910, -58.411536";
+
+                // var api = 'http://api.apixu.com/v1/current.json?key=1e6f00d8a6434a0ea4b220356170305&q='+long+','+lat; no funcion
+
+                $.getJSON(api, function (data) {
+
+                    var city = data.location.name;
+                    var region = data.location.region;
+                    var country = data.location.country;
+                    var localTime = data.location.localtime;
+                    var tempCelsius = data.current.temp_c;
+                    var tempFaren = data.current.temp_f;
+                    var conditionText = data.current.condition.text;
+                    var conditionIcon = data.current.condition.icon;
+                    var windMph = data.current.wind_mph;
+                    var windKph = data.current.wind_kph;
+                    var hum = data.current.humidity;
+                    var feelC = data.current.feelslike_c;
+                    var feelK = data.current.feelslike_f;
+                    var tempSwap = true;
+                    var windSwap = true;
+                    var feelSwap = true;
+
+                    //$("#data").html(long);
+
+                    localTime = localTime.substr(10, 15);
+                    $("#location").html(city + ', ' + region + ', ' + country + '. At' + localTime);
+
+                    $("#tempCelsius").html('Temperature: ' + tempCelsius + ' °C');
+                    $("#tempCelsius").html('Temperature: ' + tempCelsius + ' °C').on("click", function () {
+
+                        if (tempSwap === false) {
+                            $("#tempCelsius").html('Temperature: ' + tempFaren + ' °F');
+                            tempSwap = true;
+                        } else {
+                            $("#tempCelsius").html('Temperature: ' + tempCelsius + ' °C');
+                            tempSwap = false;
+                        }
+
+                    });
+
+                    $("#tempFaren").html(tempFaren + ' °F');
+                    $("#conditionText").html('Condition: ' + conditionText);
+                    $('#conditionIcon').attr('src', conditionIcon);
+                    if (data.current.is_day === 1) {
+                        if (data.current.will_it_rain !== 1) {
+                            $("body").css("background-image", "url(http://www.hotelroomsearch.net/im/hotels/gb/sunny-skies-4.jpg)");
+                        } else {
+                            $("body").css("background-image", "url(http://az616578.vo.msecnd.net/files/2016/08/13/6360670335816709561877596775_635838328234606825-1082304514_rainy_day_wallpaper_2.jpeg)");
+
+                        }
+                    } else {
+                        if (data.current.will_it_rain !== 1) {
+                            $("body").css("background-image", "url(http://i.imgur.com/oLWPUPh.jpg)");
+                        } else {
+                            $("body").css("background-image", "url(http://umad.com/img/2016/7/rainy-night-weather-wallpaper-13952-14423-hd-wallpapers.jpg)");
+                        }
+                    }
+
+
+
+                    $("#windMph").html('Wind Speed: ' + windMph + ' Mph');
+                    $("#windMph").on("click", function () {
+                        if (windSwap === false) {
+                            $("#windMph").html('Wind Speed: ' + windKph + ' Kph');
+                            windSwap = true;
+                        } else {
+                            $("#windMph").html('Wind Speed: ' + windMph + ' Mph');
+                            windSwap = false;
+                        }
+                    });
+
+                    $("#windKph").html(windKph + ' Kph');
+                    $("#humidity").html('Humidity: ' + hum + ' %');
+                    $("#feelsLikeC").html('Feels like: ' + feelC + ' °C');
+                    $("#feelsLikeC").on("click", function () {
+                        if (feelSwap === false) {
+                            $("#feelsLikeC").html('Feels like: ' + feelK + ' °K');
+                            feelSwap = true;
+                        } else {
+                            $("#feelsLikeC").html('Feels like: ' + feelC + ' °C');
+                            feelSwap = false;
+                        }
+                    });
+
+                    $("#feelsLikeK").html(feelK + ' °K');
+
+
+
+                });
+
+            });
+
+
+        </script>
+
+
+    </body>
+
+
+</html>
